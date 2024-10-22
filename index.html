@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+</head>
+<body>
+        
+
+    <div class="shop-container">
+        <h2>Shopping Cart</h2>
+        <h4>Add Item for selection</h4>
+
+        <!-- product form 1 -->
+        <div>
+            <label for="product-name">Product Name: </label>
+            <input type="text" id="product-name">
+            <label for="product-price">Price: </label>
+            <input type="text" id="product-price">
+            <label for="product-image-url">Image URL: </label>
+            <input type="text" id="product-image-url">
+            <button onclick="addProduct()">Create Product</button>
+            <ul id="product-list"></ul>
+        </div>
+        <!-- product form 1 -->
+
+        <!-- product dashboard -->
+        <div>
+            <button  onclick="addToCart()">Add to Cart</button>
+        </div>
+        <br>
+        <!-- product dashboard -->
+
+        <!-- product form 2 -->
+        <div>
+            <ul id="cart-list"></ul>
+            <button  onclick="calculateFinalPrice()">Calculate Final Price</button>
+            <div id="total-price"></div>
+        </div>
+        <!-- product form 2 -->
+
+    </div>
+
+    <script>
+        function addProduct() {
+            const addPname = document.getElementById('product-name');
+            const addPrice = document.getElementById('product-price');
+            const addImage = document.getElementById('product-image-url');
+
+            const taskName = addPname.value.trim();
+            const taskPrice = addPrice.value.trim();
+            const taskImage = addImage.value.trim();
+
+            if (taskName && taskPrice && taskImage) {
+                let product = {
+                    name: taskName,
+                    price: taskPrice,
+                    image: taskImage
+                };
+
+                const newProduct = document.getElementById('product-list');
+                const newTask = document.createElement('li');
+
+                //create name, price, image
+                const taskProductName = document.createElement('div');
+                taskProductName.textContent = `Name: ${product.name}`;
+
+                const taskProductPrice = document.createElement('div');
+                taskProductPrice.textContent = `Price: ${product.price}`;
+                taskProductPrice.className = 'product-price';
+
+                const taskProductImage = document.createElement('img');
+                taskProductImage.src = product.image;
+                taskProductImage.alt = product.name;
+                taskProductImage.style.maxWidth = '100px';
+
+                // create checkbox
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+
+                newTask.appendChild(checkbox);
+                newTask.appendChild(taskProductName);
+                newTask.appendChild(taskProductPrice);
+                newTask.appendChild(taskProductImage);
+
+                newProduct.appendChild(newTask);
+
+                //clear input
+                addPname.value = '';
+                addPrice.value = '';
+                addImage.value = '';
+            } else {
+                alert("Please fill out all fields!");
+            }
+        }
+
+        function addToCart() {
+            const productList = document.querySelectorAll('#product-list li');
+            const cartList = document.getElementById('cart-list');
+
+            cartList.innerHTML = '';
+
+            productList.forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    const clonedItem = item.cloneNode(true); // คัดลอก item
+                    clonedItem.querySelector('input[type="checkbox"]').remove(); // เอา checkbox ออก
+
+                    // สร้างปุ่ม Remove
+                    const removeButton = document.createElement('button');
+                    removeButton.textContent = 'Remove';
+                    removeButton.onclick = function() {
+                        cartList.removeChild(clonedItem); // ลบรายการเมื่อคลิกปุ่ม Remove
+                        calculateFinalPrice(); // คำนวณราคาใหม่หลังลบรายการ
+                    };
+
+                    // เพิ่มปุ่ม Remove ลงใน clonedItem
+                    clonedItem.appendChild(removeButton);
+
+                    cartList.appendChild(clonedItem); // เพิ่มใน Cart
+                }
+            });
+
+            if (cartList.children.length === 0) {
+                alert('No items selected to add to the cart!');
+            }
+        }
+
+        function calculateFinalPrice() {
+            const cartItems = document.querySelectorAll('#cart-list li');
+            let totalPrice = 0;
+
+            cartItems.forEach(item => {
+                const priceElement = item.querySelector('.product-price');
+                const priceText = priceElement.textContent;
+                const priceValue = parseFloat(priceText.replace('Price: ', '').trim());
+                totalPrice += priceValue;
+            });
+
+            // แสดงผลรวม
+            const totalPriceDiv = document.getElementById('total-price');
+            totalPriceDiv.textContent = `You have to pay: $${totalPrice.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
